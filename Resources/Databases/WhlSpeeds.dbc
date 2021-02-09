@@ -1,0 +1,89 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: SpeedSensor
+
+
+BO_ 1366 Configure: 8 SpeedSensor
+ SG_ Radius : 8|8@1+ (0.0039216,0) [0|1] "M" Vector__XXX
+ SG_ ToothNum : 0|8@1+ (1,0) [0|255] "Num" Vector__XXX
+
+BO_ 1367 ErrCode: 8 SpeedSensor
+ SG_ FL_ErrCode : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ FR_ErrCode : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ RL_ErrCode : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ RR_ErrCode : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 1365 Wheel_Speed: 8 SpeedSensor
+ SG_ Whl_Dir_Reverse_RR : 63|1@1- (1,0) [0|0] "" Vector__XXX
+ SG_ Whl_Dir_Reverse_RL : 47|1@1- (1,0) [0|0] "" Vector__XXX
+ SG_ Whl_Dir_Reverse_FR : 31|1@1- (1,0) [0|0] "" Vector__XXX
+ SG_ Whl_Dir_Reverse_FL : 15|1@1- (1,0) [0|0] "" Vector__XXX
+ SG_ FL_Speed : 0|15@1+ (0.0045776,0) [0|300] "KM/H" Vector__XXX
+ SG_ FR_Speed : 16|15@1+ (0.0045776,0) [0|300] "KM/H" Vector__XXX
+ SG_ RL_Speed : 32|15@1+ (0.0045776,0) [0|300] "KM/H" Vector__XXX
+ SG_ RR_Speed : 48|15@1+ (0.0045776,0) [0|300] "KM/H" Vector__XXX
+
+
+
+CM_ SG_ 1366 Radius "半径，默认值=0.336";
+CM_ SG_ 1366 ToothNum "齿数，默认值=44";
+CM_ SG_ 1365 FL_Speed "左前轮速度";
+CM_ SG_ 1365 FR_Speed "右前轮速度";
+CM_ SG_ 1365 RL_Speed "左后轮速度";
+CM_ SG_ 1365 RR_Speed "右后轮速度";
+BA_DEF_  "DBName" STRING ;
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ BO_  "VFrameFormat" ENUM  "StandardCAN","ExtendedCAN","reserved","J1939PG","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","StandardCAN_FD","ExtendedCAN_FD";
+BA_DEF_ BO_  "GenMsgSendType" ENUM  "Cyclic","Event","CyclicIfActive","SpontanWithDelay","CyclicAndSpontan","CyclicAndSpontanWithDelay";
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 0;
+BA_DEF_ BO_  "GenMsgDelayTime" INT 0 0;
+BA_DEF_ SG_  "GenSigStartValue" FLOAT 0 0;
+BA_DEF_DEF_  "DBName" "Cluster";
+BA_DEF_DEF_  "BusType" "CAN";
+BA_DEF_DEF_  "VFrameFormat" "StandardCAN";
+BA_DEF_DEF_  "GenMsgSendType" "Cyclic";
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "GenMsgDelayTime" 0;
+BA_DEF_DEF_  "GenSigStartValue" 0;
+BA_ "DBName" "Cluster";
+BA_ "GenMsgSendType" BO_ 1366 1;
+BA_ "VFrameFormat" BO_ 1366 0;
+BA_ "GenMsgSendType" BO_ 1367 1;
+BA_ "VFrameFormat" BO_ 1367 0;
+BA_ "GenMsgCycleTime" BO_ 1365 1;
+BA_ "GenMsgSendType" BO_ 1365 0;
+BA_ "VFrameFormat" BO_ 1365 0;
+
