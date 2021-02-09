@@ -6,3 +6,6 @@ Demos are implemented in the following languages:
 - C#
 - Delphi
 - LabVIEW
+- Python
+- Matlab
+- COM
