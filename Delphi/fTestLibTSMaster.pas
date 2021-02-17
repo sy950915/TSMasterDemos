@@ -366,7 +366,6 @@ implementation
 uses
   System.Math,
   Winapi.ShellAPI,
-  uTSBaseTypes,
   System.AnsiStrings;
 
 const
@@ -445,17 +444,17 @@ end;
 procedure TfrmTestLibTSMaster.btnLINReadDataByIDClick(Sender: TObject);
 var
   tmpValue:Integer;
-  reqNadValue:u8;
-  reqID:u16;
-  resNadValue:u8;
-  resBytes:array[0..29]of u8;
+  reqNadValue:byte;
+  reqID:word;
+  resNadValue:byte;
+  resBytes:array[0..29]of byte;
   resNum:Integer;
   testStr:string;
   i:Integer;
 begin
   if TryStrToInt('$' + edtNAD.Text,tmpValue) then
   begin
-    reqNadValue := u8(tmpValue);
+    reqNadValue := byte(tmpValue);
   end
   else
   begin
@@ -464,7 +463,7 @@ begin
   end;
   if TryStrToInt('$' + Trim(memoLINDatas.Text),tmpValue) then
   begin
-     reqID := u16(tmpValue);
+     reqID := word(tmpValue);
   end
   else
   begin
@@ -652,7 +651,7 @@ var
   dataStrs:string;
   realDataCnt:Integer;
   tmpValue:Integer;
-  nadValue:u8;
+  nadValue:byte;
 begin
   dataStrs := '';
   for i := 0 to memoLINDatas.Lines.Count - 1 do
@@ -664,7 +663,7 @@ begin
   begin
      if TryStrToInt('$' + dataStrs.Substring(0 + i*2,2),tmpValue) then
      begin
-        testBytes[i] := u8(tmpValue);
+        testBytes[i] := byte(tmpValue);
      end
      else
      begin
@@ -674,7 +673,7 @@ begin
   end;
   if TryStrToInt('$' + edtNAD.Text,tmpValue) then
   begin
-    nadValue := u8(tmpValue);
+    nadValue := byte(tmpValue);
   end
   else
   begin
