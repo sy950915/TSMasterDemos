@@ -34,6 +34,7 @@
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.btnStartLogging = new System.Windows.Forms.Button();
             this.tbDeviceInformation = new System.Windows.Forms.TextBox();
             this.cbbDeviceIndex = new System.Windows.Forms.ComboBox();
             this.btnGetAppointtedDeviceInfo = new System.Windows.Forms.Button();
@@ -144,9 +145,12 @@
             this.lblSignalValue = new System.Windows.Forms.Label();
             this.btnSetCANSignalValue = new System.Windows.Forms.Button();
             this.btnReadCANSignalValue = new System.Windows.Forms.Button();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.btnAddReplayEngine = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.btnStartLogging = new System.Windows.Forms.Button();
+            this.btnShowHardwareConfig = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -155,6 +159,7 @@
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.grpDBCDemoCommand.SuspendLayout();
+            this.tabPage5.SuspendLayout();
             this.SuspendLayout();
             // 
             // MM
@@ -181,6 +186,7 @@
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
+            this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -190,6 +196,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.btnShowHardwareConfig);
             this.tabPage1.Controls.Add(this.btnStartLogging);
             this.tabPage1.Controls.Add(this.tbDeviceInformation);
             this.tabPage1.Controls.Add(this.cbbDeviceIndex);
@@ -261,6 +268,16 @@
             this.tabPage1.Text = "Application";
             this.tabPage1.UseVisualStyleBackColor = true;
             this.tabPage1.Click += new System.EventHandler(this.tabPage1_Click);
+            // 
+            // btnStartLogging
+            // 
+            this.btnStartLogging.Location = new System.Drawing.Point(686, 180);
+            this.btnStartLogging.Name = "btnStartLogging";
+            this.btnStartLogging.Size = new System.Drawing.Size(223, 23);
+            this.btnStartLogging.TabIndex = 71;
+            this.btnStartLogging.Text = "Start Logging";
+            this.btnStartLogging.UseVisualStyleBackColor = true;
+            this.btnStartLogging.Click += new System.EventHandler(this.btnStartLogging_Click);
             // 
             // tbDeviceInformation
             // 
@@ -655,9 +672,9 @@
             "Panel",
             "CAN Remaining Bus Simulation",
             "MATLAB Automation Controller"});
-            this.cbbWindowName.Location = new System.Drawing.Point(514, 560);
+            this.cbbWindowName.Location = new System.Drawing.Point(750, 560);
             this.cbbWindowName.Name = "cbbWindowName";
-            this.cbbWindowName.Size = new System.Drawing.Size(490, 20);
+            this.cbbWindowName.Size = new System.Drawing.Size(359, 20);
             this.cbbWindowName.TabIndex = 28;
             // 
             // btnReadTurboMode
@@ -902,9 +919,9 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(275, 558);
+            this.button2.Location = new System.Drawing.Point(532, 558);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(223, 23);
+            this.button2.Size = new System.Drawing.Size(212, 23);
             this.button2.TabIndex = 1;
             this.button2.Text = "Show TsMaster Window";
             this.button2.UseVisualStyleBackColor = true;
@@ -940,7 +957,7 @@
             // lblCount
             // 
             this.lblCount.AutoSize = true;
-            this.lblCount.Location = new System.Drawing.Point(655, 48);
+            this.lblCount.Location = new System.Drawing.Point(668, 48);
             this.lblCount.Name = "lblCount";
             this.lblCount.Size = new System.Drawing.Size(65, 12);
             this.lblCount.TabIndex = 17;
@@ -1634,6 +1651,35 @@
             this.btnReadCANSignalValue.UseVisualStyleBackColor = true;
             this.btnReadCANSignalValue.Click += new System.EventHandler(this.btnReadCANSignalValue_Click);
             // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.textBox1);
+            this.tabPage5.Controls.Add(this.btnAddReplayEngine);
+            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Size = new System.Drawing.Size(1344, 593);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "OnlineReplay";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(275, 56);
+            this.textBox1.Multiline = true;
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(645, 385);
+            this.textBox1.TabIndex = 1;
+            // 
+            // btnAddReplayEngine
+            // 
+            this.btnAddReplayEngine.Location = new System.Drawing.Point(24, 56);
+            this.btnAddReplayEngine.Name = "btnAddReplayEngine";
+            this.btnAddReplayEngine.Size = new System.Drawing.Size(221, 23);
+            this.btnAddReplayEngine.TabIndex = 0;
+            this.btnAddReplayEngine.Text = "Add Replay Engine";
+            this.btnAddReplayEngine.UseVisualStyleBackColor = true;
+            this.btnAddReplayEngine.Click += new System.EventHandler(this.btnAddReplayEngine_Click);
+            // 
             // timer1
             // 
             this.timer1.Enabled = true;
@@ -1645,15 +1691,15 @@
             this.timer2.Enabled = true;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // btnStartLogging
+            // btnShowHardwareConfig
             // 
-            this.btnStartLogging.Location = new System.Drawing.Point(686, 180);
-            this.btnStartLogging.Name = "btnStartLogging";
-            this.btnStartLogging.Size = new System.Drawing.Size(223, 23);
-            this.btnStartLogging.TabIndex = 71;
-            this.btnStartLogging.Text = "Start Logging";
-            this.btnStartLogging.UseVisualStyleBackColor = true;
-            this.btnStartLogging.Click += new System.EventHandler(this.btnStartLogging_Click);
+            this.btnShowHardwareConfig.Location = new System.Drawing.Point(275, 557);
+            this.btnShowHardwareConfig.Name = "btnShowHardwareConfig";
+            this.btnShowHardwareConfig.Size = new System.Drawing.Size(223, 23);
+            this.btnShowHardwareConfig.TabIndex = 72;
+            this.btnShowHardwareConfig.Text = "Show HardwareConfig";
+            this.btnShowHardwareConfig.UseVisualStyleBackColor = true;
+            this.btnShowHardwareConfig.Click += new System.EventHandler(this.btnShowHardwareConfig_Click);
             // 
             // frmMain
             // 
@@ -1680,6 +1726,8 @@
             this.panel1.ResumeLayout(false);
             this.grpDBCDemoCommand.ResumeLayout(false);
             this.grpDBCDemoCommand.PerformLayout();
+            this.tabPage5.ResumeLayout(false);
+            this.tabPage5.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1804,6 +1852,10 @@
         private System.Windows.Forms.TextBox tBDeviceNumber;
         private System.Windows.Forms.Button btnGetDeviceNum;
         private System.Windows.Forms.Button btnStartLogging;
+        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button btnAddReplayEngine;
+        private System.Windows.Forms.Button btnShowHardwareConfig;
     }
 }
 
