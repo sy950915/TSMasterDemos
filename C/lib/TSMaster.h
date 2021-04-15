@@ -366,7 +366,7 @@ typedef struct _TCANFD{
 } TCANFD, *PCANFD;
 
 // LIN frame type ================================================
-typedef struct {
+typedef struct _TLIN {
     u8  FIdxChn;
     u8  FErrStatus;
     u8  FProperties;
@@ -437,14 +437,26 @@ typedef enum {
     ZLG_USB_DEVICE             = 6,
     ICS_USB_DEVICE             = 7,
     TS_TC1005_DEVICE           = 8
-} TLIBBusToolDeviceType;
+} TLIBBusToolDeviceType, *PLIBBusToolDeviceType;
 typedef enum {APP_CAN = 0, APP_LIN = 1} TLIBApplicationChannelType;
 typedef enum {
     cbsBusLoad = 0, cbsPeakLoad, cbsFpsStdData, cbsAllStdData,
     cbsFpsExtData, cbsAllExtData, cbsFpsStdRemote, cbsAllStdRemote,
     cbsFpsExtRemote, cbsAllExtRemote, cbsFpsErrorFrame, cbsAllErrorFrame    
 } TLIBCANBusStatistics;
+
+#define VENDOR_NAME_LENGTH     (32)
+#define DEVICE_SERIAL_STRING   (64)
+// Hardware Info definition
 typedef struct {
+    TLIBBusToolDeviceType FDeviceType;
+    s32 FDeviceIndex;
+    char FVendorName[VENDOR_NAME_LENGTH];
+    char FDeviceName[APP_DEVICE_NAME_LENGTH];
+    char FSerialString[DEVICE_SERIAL_STRING];
+}TLIBHWInfo, *PLIBHWInfo;
+
+typedef struct _TLIBTSMapping {
     char                       FAppName[APP_DEVICE_NAME_LENGTH];
     s32                        FAppChannelIndex;
     TLIBApplicationChannelType FAppChannelType;
@@ -515,25 +527,19 @@ TSAPI(s32) tsapp_add_application(const char* AAppName);
 TSAPI(s32) tsapp_add_cyclic_msg_can(const PCAN ACAN, const float APeriodMS);
 TSAPI(s32) tsapp_add_cyclic_msg_canfd(const PCANFD ACANFD, const float APeriodMS);
 TSAPI(s32) tsapp_clear_bus_statistics(void);
-// tsapp_clear_can_receive_buffers
-// tsapp_clear_canfd_receive_buffers
-// tsapp_clear_fastlin_receive_buffers
-// tsapp_clear_lin_receive_buffers
 TSAPI(s32) tsapp_configure_baudrate_can(const s32 AIdxChn, const float ABaudrateKbps, const bool AListenOnly, const bool AInstallTermResistor120Ohm);
 TSAPI(s32) tsapp_configure_baudrate_canfd(const s32 AIdxChn, const float ABaudrateArbKbps, const float ABaudrateDataKbps, const TCANFDControllerType AControllerType, const TCANFDControllerMode AControllerMode, const bool AInstallTermResistor120Ohm);
 TSAPI(s32) tsapp_connect(void);
 TSAPI(s32) tsapp_del_application(const char* AAppName);
 TSAPI(s32) tsapp_del_mapping(const PLIBTSMapping AMapping);
-// tsapp_del_mapping_verbose
+TSAPI(s32) tsapp_del_mapping_verbose(const char* AAppName,
+                                     const TLIBApplicationChannelType AAppChannelType,
+                                     const s32 AAppChannel);
 TSAPI(s32) tsapp_delete_cyclic_msg_can(const PCAN ACAN);
 TSAPI(s32) tsapp_delete_cyclic_msg_canfd(const PCANFD ACANFD);
 TSAPI(s32) tsapp_delete_cyclic_msgs(void);
-// tsapp_disable_receive_error_frames
-// tsapp_disable_receive_fifo
 TSAPI(s32) tsapp_disconnect(void);
 TSAPI(s32) tsapp_enable_bus_statistics(const bool AEnable);
-// tsapp_enable_receive_error_frames
-// tsapp_enable_receive_fifo
 // tsapp_enumerate_hw_devices
 TSAPI(s32) tsapp_execute_python_string(const char* AString, const bool AIsSync, const bool AIsX64, char** AResultLog);
 TSAPI(s32) tsapp_execute_python_script(const char* AFilePath, const bool AIsSync, const bool AIsX64, char** AResultLog);
@@ -545,31 +551,50 @@ TSAPI(s32) tsapp_get_error_description(const s32 ACode, char** ADesc);
 TSAPI(s32) tsapp_get_fps_can(const s32 AIdxChn, const s32 AIdentifier, ps32 AFPS);
 TSAPI(s32) tsapp_get_fps_canfd(const s32 AIdxChn, const s32 AIdentifier, ps32 AFPS);
 TSAPI(s32) tsapp_get_fps_lin(const s32 AIdxChn, const s32 AIdentifier, ps32 AFPS);
-// tsapp_get_hw_info_by_index
-// tsapp_get_hw_info_by_index_verbose
+TSAPI(s32) tsapp_get_hw_info_by_index(const s32 AIndex, const PLIBHWInfo AHWInfo);
+TSAPI(s32) tsapp_get_hw_info_by_index_verbose(const s32 AIndex,
+                                      PLIBBusToolDeviceType ADeviceType,
+                                      char* AVendorNameBuffer, //array[0..31] of AnsiChar;
+                                      s32 AVendorNameBufferSize,
+                                      char* ADeviceNameBuffer, //array[0..31] of AnsiChar;
+                                      s32 ADeviceNameBufferSize,
+                                      char* ASerialStringBuffer, //array[0..63] of AnsiChar
+                                      s32 ASerialStringBufferSize
+                                      );
 TSAPI(s32) tsapp_get_lin_channel_count(const ps32 ACount);
 TSAPI(s32) tsapp_get_mapping(const PLIBTSMapping AMapping);
-// tsapp_get_mapping_verbose
+TSAPI(s32) tsapp_get_mapping_verbose(const char* AAppName,
+                                     const TLIBApplicationChannelType AAppChannelType,
+                                     const s32 AAppChannel,
+                                     const PLIBTSMapping AMapping); 
 TSAPI(s32) tsapp_get_timestamp(s64* ATimestamp);
 TSAPI(s32) tsapp_get_turbo_mode(const bool* AEnable);
 // tsapp_get_vendor_detect_preferences
 TSAPI(void) tsapp_log(const char* AStr, const TLogLevel ALevel);
-// tsapp_read_can_buffer_datacount
-// tsapp_read_can_rx_buffer_datacount
-// tsapp_read_can_tx_buffer_datacount
-// tsapp_read_canfd_buffer_datacount
-// tsapp_read_canfd_rx_buffer_datacount
-// tsapp_read_canfd_tx_buffer_datacount
-// tsapp_read_fastlin_buffer_datacount
-// tsapp_read_fastlin_rx_buffer_datacount
-// tsapp_read_fastlin_tx_buffer_datacount
-// tsapp_read_lin_buffer_datacount
-// tsapp_read_lin_rx_buffer_datacount
-// tsapp_read_lin_tx_buffer_datacount
-// tsapp_receive_can_msgs
-// tsapp_receive_canfd_msgs
-// tsapp_receive_fastlin_msgs
-// tsapp_receive_lin_msgs
+TSAPI(void) tsfifo_enable_receive_error_frames(void);
+TSAPI(void) tsfifo_enable_receive_fifo(void);
+TSAPI(void) tsfifo_disable_receive_error_frames(void);
+TSAPI(void) tsfifo_disable_receive_fifo(void);
+TSAPI(s32) tsfifo_read_can_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_can_rx_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_can_tx_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_canfd_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_canfd_rx_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_canfd_tx_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_fastlin_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_fastlin_rx_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_fastlin_tx_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_lin_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_lin_rx_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_read_lin_tx_buffer_frame_count(const s32 AIdxChn, ps32 ACount);
+TSAPI(s32) tsfifo_receive_can_msgs(PCAN ACANBuffers, ps32 ACANBufferSize, const s32 AIdxChn, const bool AIncludeTx);
+TSAPI(s32) tsfifo_receive_canfd_msgs(PCANFD ACANFDBuffers, ps32 ACANFDBufferSize, const s32 AIdxChn, const bool AIncludeTx);
+TSAPI(s32) tsfifo_receive_fastlin_msgs(PLIN ALINBuffers, ps32 ALINBufferSize, const s32 AIdxChn, const bool AIncludeTx);
+TSAPI(s32) tsfifo_receive_lin_msgs(PLIN ALINBuffers, ps32 ALINBufferSize, const s32 AIdxChn, const bool AIncludeTx);
+TSAPI(s32) tsfifo_clear_can_receive_buffers(const s32 AIdxChn);
+TSAPI(s32) tsfifo_clear_canfd_receive_buffers(const s32 AIdxChn);
+TSAPI(s32) tsfifo_clear_fastlin_receive_buffers(const s32 AIdxChn);
+TSAPI(s32) tsfifo_clear_lin_receive_buffers(const s32 AIdxChn);
 TSAPI(s32) tsapp_register_event_can(const ps32 AObj, const TCANEvent AEvent);
 TSAPI(s32) tsapp_register_event_canfd(const ps32 AObj, const TCANFDEvent AEvent);
 TSAPI(s32) tsapp_register_event_lin(const ps32 AObj, const TLINEvent AEvent);
@@ -581,12 +606,25 @@ TSAPI(s32) tsapp_set_current_application(const char* AAppName);
 TSAPI(s32) tsapp_set_lin_channel_count(const s32 ACount);
 TSAPI(s32) tsapp_set_logger(const TLogger ALogger);
 TSAPI(s32) tsapp_set_mapping(const PLIBTSMapping AMapping);
-// tsapp_set_mapping_verbose
+TSAPI(s32) tsapp_set_mapping_verbose(const char* AAppName,
+                                     const TLIBApplicationChannelType AAppChannelType,
+                                     const s32 AAppChannel,  
+                                     const char* AHardwareName,
+                                     const TLIBBusToolDeviceType AHardwareType,
+                                     const s32 AHardwareSubType,
+                                     const s32 AHardwareIndex,
+                                     const s32 AHardwareChannel,  
+                                     const bool AEnableMapping); 
 TSAPI(s32) tsapp_set_turbo_mode(const bool AEnable);
-// tsapp_set_vendor_detect_preferences
+TSAPI(s32) tsapp_set_vendor_detect_preferences(const bool AScanTOSUN, 
+	                                           const bool AScanVector, 
+	                                           const bool AScanPeak, 
+	                                           const bool AScanKvaser, 
+	                                           const bool AScanZLG, 
+	                                           const bool AScanIntrepidcs);
 // tsapp_show_channel_mapping_window
 // tsapp_show_hardware_configuration_window
-// tsapp_show_tsmaster_window
+TSAPI(s32) tsapp_show_tsmaster_window(const char* AWindowName, const bool AWaitClose);
 TSAPI(s32) tsapp_start_logging(const void* AObj);
 TSAPI(s32) tsapp_stop_logging(const void* AObj);
 TSAPI(s32) tsapp_transmit_can_async(const PCAN ACAN);
