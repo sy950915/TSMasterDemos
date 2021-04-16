@@ -247,6 +247,9 @@ type
     Label52: TLabel;
     edtLibTSMaster: TEdit;
     Button68: TButton;
+    MMExcel: TMemo;
+    Button69: TButton;
+    Button70: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -336,6 +339,9 @@ type
     procedure Button66Click(Sender: TObject);
     procedure Button67Click(Sender: TObject);
     procedure Button68Click(Sender: TObject);
+    procedure Button69Click(Sender: TObject);
+    procedure Button70Click(Sender: TObject);
+    procedure shtOnlineReplayShow(Sender: TObject);
   private
     FApplicationName: ansistring;
     function GetMyApplication: PAnsiChar;
@@ -520,10 +526,12 @@ var
   revCnt:Integer;
   i:Integer;
 begin
-  revCnt := tsapp_receive_canfd_msgs(@canfdBuffer[0],10,0,0);
+  revCnt := 10;
+  if CheckOK(tsfifo_receive_canfd_msgs(@canfdBuffer[0],@revCnt,0,false)) then begin
   for i := 0 to revCnt - 1 do
-  begin
-     Log('Receive CANFD Msg: ' + canFDBuffer[i].ToString);
+    begin
+       Log('Receive CANFD Msg: ' + canFDBuffer[i].ToString);
+    end;
   end;
 
 end;
@@ -534,10 +542,12 @@ var
   revCnt:Integer;
   i:Integer;
 begin
-  revCnt := tsapp_receive_can_msgs(@canBuffer[0],10,0,0);
-  for i := 0 to revCnt - 1 do
-  begin
-     Log('Receive CAN Msg: ' + canBuffer[i].ToString);
+  revCnt := 10;
+  if CheckOK(tsfifo_receive_can_msgs(@canBuffer[0],@revCnt,0,false)) then begin
+    for i := 0 to revCnt - 1 do
+    begin
+       Log('Receive CAN Msg: ' + canBuffer[i].ToString);
+    end;
   end;
 
 end;
@@ -613,7 +623,7 @@ var
 begin
    if TryStrToFloat(edtLINBaudrate.Text,kBaudrate) then
    begin
-     if tsapp_configure_baudrate_lin(0,kBaudrate*1000)  = 0 then
+     if tsapp_configure_baudrate_lin(0,kBaudrate)  = 0 then
      begin
        Log('Set LIN Baudrate Success!');
      end
@@ -799,15 +809,17 @@ end;
 procedure TfrmTestLibTSMaster.Button14Click(Sender: TObject);
 begin
   // register only one of them: CAN or CANFD
-  // tsapp_register_rx_event_can(self, OnCANRxEvent);
-  tsapp_register_event_canfd(Self, OnCANFDRxEvent);
-  tsapp_register_event_lin(self, OnLINRxEvent);
+  if CheckOK(tsapp_register_event_canfd(Self, OnCANFDRxEvent)) and
+     CheckOK(tsapp_register_event_lin(self, OnLINRxEvent)) then begin
+    Log('CAN FD and LIN rx callbacks registered');
+  end;
 
 end;
 
 procedure TfrmTestLibTSMaster.Button15Click(Sender: TObject);
 begin
   InternalUnregisterEvents;
+  Log('All rx callbacks unregistered');
 
 end;
 
@@ -1065,7 +1077,7 @@ begin
   i := StrToIntDef(edtCANFDChannelBaudrate.Text, 1) - 1;
   bArb := StrToFloatDef(edtBaudrateCANFDArb.text, 500);
   bdata := StrToFloatDef(edtBaudrateCANFDData.text, 2000);
-  if CheckOK(tsapp_configure_baudrate_canfd(i, barb, bdata, lfdtISOCAN, lfdmNormal, chkTerm120.Checked)) then begin
+  if CheckOK(tsapp_configure_baudrate_canfd(i, barb, bdata, lfdtISOCAN, lfdmNormal, chkTerm120FD.Checked)) then begin
     Log('Channel ' + (i+1).ToString + ' baudrate has been configured');
   end;
 
@@ -1603,12 +1615,70 @@ begin
 
 end;
 
+procedure TfrmTestLibTSMaster.Button69Click(Sender: TObject);
+var
+  i: integer;
+  p: Pointer;
+begin
+  if MMExcel.Lines.Count <= 0 then begin
+    Log('Please set some string in the right memo before writing to excel file');
+    exit;
+  end;
+  if not checkok(tsapp_excel_load('test.xlsx', @p)) then begin
+    Log('Error: load or create excel file failed: test.xls');
+    exit;
+  end;
+  if not checkok(tsapp_excel_set_sheet_count(p, 1)) then begin
+    Log('Error: set sheet count failed: test.xlsx');
+    exit;
+  end;
+  if not CheckOK(tsapp_excel_set_cell_count(p, 0, MMExcel.Lines.Count, 1)) then begin
+    Log('Error: set cell count failed: test.xlsx');
+    exit;
+  end;
+  for i:=0 to MMExcel.Lines.Count - 1 do begin
+    if not CheckOK(tsapp_excel_set_cell_value(p, 0, i, 0, PAnsiChar(AnsiString(MMExcel.Lines[i])))) then begin
+      Log('Error: set cell value failed: test.xlsx');
+      exit;
+    end;
+  end;
+  if not CheckOK(tsapp_excel_unload(p)) then begin
+    Log('Error: unload excel failed: test.xlsx');
+    exit;
+  end;
+  Log('Excel file written: test.xlsx');
+
+end;
+
 procedure TfrmTestLibTSMaster.Button6Click(Sender: TObject);
 begin
   chkVendorClick(chkVendor);
   if CheckOK(tsapp_connect()) then begin
     Log('Application connected');
   end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button70Click(Sender: TObject);
+var
+  i, m, n: integer;
+  p: Pointer;
+  ps: pansichar;
+begin
+  MMExcel.Clear;
+  if not checkok(tsapp_excel_load('test.xlsx', @p)) then exit;
+  if not checkok(tsapp_excel_get_sheet_count(p, n)) then exit;
+  if n < 1 then begin
+    Log('Excel sheet count < 1');
+    exit;
+  end;
+  if not CheckOK(tsapp_excel_get_cell_count(p, 0, m, n)) then exit;
+  for i:=0 to m - 1 do begin
+    if not CheckOK(tsapp_excel_get_cell_value(p, 0, i, 0, @ps)) then exit;
+    MMExcel.Lines.Add(string(AnsiString(ps)));
+  end;
+  if not CheckOK(tsapp_excel_unload(p)) then exit;
+  Log('Excel file read: test.xlsx');
 
 end;
 
@@ -1713,7 +1783,7 @@ end;
 procedure TfrmTestLibTSMaster.FormCreate(Sender: TObject);
 begin
   initialize_lib_tsmaster(GetMyApplication);
-  tsapp_enable_receive_fifo;
+  tsfifo_enable_receive_fifo;
   tsapp_set_logger(LibTSMasterLogger);
   cbDeviceType1Change(cbDeviceType1);
   cbDeviceType2Change(cbDeviceType2);
@@ -1844,6 +1914,12 @@ begin
   if CheckOK(tsapp_set_mapping(@m)) then begin
     log('Mappings of channel ' + (aappchnidx+1).ToString + ' has been set');
   end;
+
+end;
+
+procedure TfrmTestLibTSMaster.shtOnlineReplayShow(Sender: TObject);
+begin
+  btnGetOnlineReplayEnginesClick(Sender);
 
 end;
 

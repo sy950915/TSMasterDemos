@@ -445,15 +445,15 @@ typedef enum {
     cbsFpsExtRemote, cbsAllExtRemote, cbsFpsErrorFrame, cbsAllErrorFrame    
 } TLIBCANBusStatistics;
 
-#define VENDOR_NAME_LENGTH     (32)
-#define DEVICE_SERIAL_STRING   (64)
+#define VENDOR_NAME_LENGTH            (32)
+#define DEVICE_SERIAL_STRING_LENGTH   (64)
 // Hardware Info definition
 typedef struct {
     TLIBBusToolDeviceType FDeviceType;
     s32 FDeviceIndex;
     char FVendorName[VENDOR_NAME_LENGTH];
     char FDeviceName[APP_DEVICE_NAME_LENGTH];
-    char FSerialString[DEVICE_SERIAL_STRING];
+    char FSerialString[DEVICE_SERIAL_STRING_LENGTH];
 }TLIBHWInfo, *PLIBHWInfo;
 
 typedef struct _TLIBTSMapping {

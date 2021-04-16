@@ -30,7 +30,7 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     Top = 0
     Width = 1227
     Height = 549
-    ActivePage = shtLINCom
+    ActivePage = shtApplication
     Align = alClient
     TabOrder = 0
     object shtApplication: TTabSheet
@@ -611,7 +611,10 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
           'Application Window Host'
           'Automotive File Converter'
           'Symbol Mapping'
-          'Stimulation')
+          'Stimulation'
+          'Parameter Curve'
+          'Video Replay'
+          'Excel Test Module')
       end
       object Button24: TButton
         Left = 256
@@ -1973,6 +1976,7 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     object shtOnlineReplay: TTabSheet
       Caption = 'Online Replay'
       ImageIndex = 3
+      OnShow = shtOnlineReplayShow
       object GroupBox3: TGroupBox
         AlignWithMargins = True
         Left = 3
@@ -2377,7 +2381,7 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
         Left = 16
         Top = 11
         Width = 209
-        Height = 25
+        Height = 70
         Caption = 'Execute Arbitrary Python Code'
         TabOrder = 0
         OnClick = Button51Click
@@ -2398,6 +2402,41 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
           'print('#39'OK'#39')')
         ScrollBars = ssVertical
         TabOrder = 1
+      end
+      object MMExcel: TMemo
+        AlignWithMargins = True
+        Left = 240
+        Top = 98
+        Width = 976
+        Height = 89
+        Margins.Left = 240
+        Align = alTop
+        Lines.Strings = (
+          'line1'
+          'line2'
+          'line3'
+          'line4'
+          'line5')
+        ScrollBars = ssVertical
+        TabOrder = 2
+      end
+      object Button69: TButton
+        Left = 16
+        Top = 112
+        Width = 209
+        Height = 25
+        Caption = 'Save Excel Content'
+        TabOrder = 3
+        OnClick = Button69Click
+      end
+      object Button70: TButton
+        Left = 16
+        Top = 152
+        Width = 209
+        Height = 25
+        Caption = 'Load Excel Content'
+        TabOrder = 4
+        OnClick = Button70Click
       end
     end
     object shtLINCom: TTabSheet
