@@ -11,9 +11,11 @@
 		<Property Name="server.vi.propertiesEnabled" Type="Bool">true</Property>
 		<Property Name="specify.custom.address" Type="Bool">false</Property>
 		<Item Name="CAN" Type="Folder">
-			<Item Name="tsapp_enable_receive_fifo_win32.vi" Type="VI" URL="../tsapp_enable_receive_fifo_win32.vi"/>
-			<Item Name="tsapp_receive_can_message_win32.vi" Type="VI" URL="../TS_CANRead/tsapp_receive_can_message_win32.vi"/>
 			<Item Name="tsapp_transmit_can_sync_win32.vi" Type="VI" URL="../tsapp_transmit_can_sync_win32.vi"/>
+			<Item Name="tsfifo_enable_receive_fifo_win32.vi" Type="VI" URL="../tsfifo_enable_receive_fifo_win32.vi"/>
+			<Item Name="tsfifo_read_can_rx_buffer_frame_count.vi" Type="VI" URL="../TS_CANRead/tsfifo_read_can_rx_buffer_frame_count.vi"/>
+			<Item Name="tsfifo_receive_can_message_win32.vi" Type="VI" URL="../TS_CANRead/tsfifo_receive_can_message_win32.vi"/>
+			<Item Name="tsfifoclear_can_receive_buffers_win32.vi" Type="VI" URL="../tsfifoclear_can_receive_buffers_win32.vi"/>
 		</Item>
 		<Item Name="Connect" Type="Folder">
 			<Item Name="tsapp_connect_win32.vi" Type="VI" URL="../tsapp_connect_win32.vi"/>
@@ -35,7 +37,6 @@
 		<Item Name="Init" Type="Folder">
 			<Item Name="finalize_lib_tsmaster_win32.vi" Type="VI" URL="../finalize_lib_tsmaster_win32.vi"/>
 			<Item Name="initialize_lib_tsmaster_win32.vi" Type="VI" URL="../initialize_lib_tsmaster_win32.vi"/>
-			<Item Name="tsapp_clear_can_receive_buffers_win32.vi" Type="VI" URL="../tsapp_clear_can_receive_buffers_win32.vi"/>
 			<Item Name="tsapp_configure_baudrate_can_win32.vi" Type="VI" URL="../tsapp_configure_baudrate_can_win32.vi"/>
 			<Item Name="tsapp_set_canlin_channel_count_win32.vi" Type="VI" URL="../tsapp_set_canlin_channel_count_win32.vi"/>
 		</Item>
@@ -44,15 +45,18 @@
 			<Item Name="tsapp_start_logging_win32.vi" Type="VI" URL="../tsapp_start_logging_win32.vi"/>
 			<Item Name="tsapp_stop_logging_win32.vi" Type="VI" URL="../tsapp_stop_logging_win32.vi"/>
 		</Item>
+		<Item Name="TestReceiveMessage.vi" Type="VI" URL="../TestReceiveMessage.vi"/>
 		<Item Name="TLIBCANBusStatistics_Ctrl.ctl" Type="VI" URL="../BusStatistics/TLIBCANBusStatistics_Ctrl.ctl"/>
 		<Item Name="tsapp_add_cyclic_msg_can_win32.vi" Type="VI" URL="../tsapp_add_cyclic_msg_can_win32.vi"/>
 		<Item Name="tsapp_clear_bus_statistics.vi" Type="VI" URL="../BusStatistics/tsapp_clear_bus_statistics.vi"/>
 		<Item Name="tsapp_delete_cyclic_msg_can_win32.vi" Type="VI" URL="../tsapp_delete_cyclic_msg_can_win32.vi"/>
 		<Item Name="tsapp_get_bus_statistics.vi" Type="VI" URL="../BusStatistics/tsapp_get_bus_statistics.vi"/>
 		<Item Name="tsapp_get_bus_statistics_AllInfo.vi" Type="VI" URL="../BusStatistics/tsapp_get_bus_statistics_AllInfo.vi"/>
-		<Item Name="tsapp_read_can_rx_buffer_datacount_win32.vi" Type="VI" URL="../TS_CANRead/tsapp_read_can_rx_buffer_datacount_win32.vi"/>
 		<Item Name="Win32Test.vi" Type="VI" URL="../Win32Test.vi"/>
 		<Item Name="依赖关系" Type="Dependencies">
+			<Item Name="vi.lib" Type="Folder">
+				<Item Name="subTimeDelay.vi" Type="VI" URL="/&lt;vilib&gt;/express/express execution control/TimeDelayBlock.llb/subTimeDelay.vi"/>
+			</Item>
 			<Item Name="NumToTCANProperty.vi" Type="VI" URL="../NumToTCANProperty.vi"/>
 			<Item Name="tsapp_enable_bus_statistics.vi" Type="VI" URL="../BusStatistics/tsapp_enable_bus_statistics.vi"/>
 			<Item Name="tsapp_receive_can_messagelist_win32.vi" Type="VI" URL="../TS_CANRead/tsapp_receive_can_messagelist_win32.vi"/>
@@ -66,14 +70,14 @@
 				<Property Name="App_INI_GUID" Type="Str">{3747DE28-A47B-487B-A79F-584EA211181C}</Property>
 				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
 				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
-				<Property Name="Bld_buildCacheID" Type="Str">{BF165DB9-EA74-41CE-84B1-C309FA764592}</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{893AE187-DB1C-4D57-8367-4A0FACCF4B52}</Property>
 				<Property Name="Bld_buildSpecName" Type="Str">我的应用程序</Property>
 				<Property Name="Bld_defaultLanguage" Type="Str">ChineseS</Property>
 				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
 				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
 				<Property Name="Bld_localDestDir" Type="Path">/D/LabviewWorkSpace/海卓项目资料/builds/CANCard</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
-				<Property Name="Bld_previewCacheID" Type="Str">{44345DFA-FF38-4756-8E31-116D71A44E84}</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{6C634B93-7A22-4930-A932-24BBA1B97848}</Property>
 				<Property Name="Bld_version.build" Type="Int">2</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">应用程序.exe</Property>
