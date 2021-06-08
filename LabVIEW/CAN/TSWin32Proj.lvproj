@@ -60,8 +60,8 @@
 			<Item Name="NumToTCANProperty.vi" Type="VI" URL="../NumToTCANProperty.vi"/>
 			<Item Name="tsapp_enable_bus_statistics.vi" Type="VI" URL="../BusStatistics/tsapp_enable_bus_statistics.vi"/>
 			<Item Name="tsapp_receive_can_messagelist_win32.vi" Type="VI" URL="../TS_CANRead/tsapp_receive_can_messagelist_win32.vi"/>
+			<Item Name="TSMaster.dll" Type="Document" URL="/D/Program Files (x86)/TOSUN/TSMaster/bin/Data/SDK/lib/x86/TSMaster.dll"/>
 			<Item Name="TSMaster.dll" Type="Document" URL="../TSMaster.dll"/>
-			<Item Name="TSMaster.dll" Type="Document" URL="../../海卓项目资料/HaiDriver/BottomLevel/TS_CANDrive/TSMaster.dll"/>
 		</Item>
 		<Item Name="程序生成规范" Type="Build">
 			<Item Name="我的应用程序" Type="EXE">
