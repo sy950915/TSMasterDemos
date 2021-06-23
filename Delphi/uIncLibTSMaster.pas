@@ -159,6 +159,8 @@ type
   TLINQueueEvent_Win32 = procedure(const AObj: Pointer; const AData: PlibLIN); stdcall;
   TLIBTSMasterLogger = procedure(const AStr: PAnsiChar; const ALevel: Integer); stdcall;
   TFirmwareUpdateCallback = procedure(const AOpaque: TObject; const AStatus: UInt32; const APercentage100: Single); stdcall;
+  TOnIoIPData = procedure(const APointer: Pointer; const ASize: Integer); stdcall;
+
 {$Z4}
   // for c type
   PLIBBusToolDeviceType = ^TLIBBusToolDeviceType;
@@ -195,6 +197,10 @@ type
   PLIBOnlineReplayStatus = ^TLIBOnlineReplayStatus;
   // RBS
   TLIBRBSInitValueOptions = (rivUseDB = 0, rivUseLast, rivUse0);
+  // BLF
+  TProgressCallback = procedure(const AProgress100: Double); stdcall;
+  PSupportedObjType = ^TSupportedObjType; // TSupportedObjType must be 4 bytes aligned
+  TSupportedObjType = (sotCAN = 0, sotLIN = 1, sotCANFD = 2, sotUnknown = $FFFFFFF);
   // TS device type
   TLIBCANFDControllerType = (lfdtCAN = 0, lfdtISOCAN = 1, lfdtNonISOCAN = 2);
   TLIBCANFDControllerMode = (lfdmNormal = 0, lfdmACKOff = 1, lfdmRestricted = 2);
@@ -461,6 +467,131 @@ const
 
 
 {$IFNDEF LIBTSMASTER_IMPL}
+const
+  // error code
+  IDX_ERR_OK                         = 0 ;
+  IDX_ERR_IDX_OUT_OF_RANGE           = 1 ;
+  IDX_ERR_CONNECT_FAILED             = 2 ;
+  IDX_ERR_DEV_NOT_FOUND              = 3 ;
+  IDX_ERR_CODE_NOT_VALID             = 4 ;
+  IDX_ERR_ALREADY_CONNECTED          = 5 ;
+  IDX_ERR_HID_WRITE_FAILED           = 6 ;
+  IDX_ERR_HID_READ_FAILED            = 7 ;
+  IDX_ERR_HID_TX_BUFF_OVERRUN        = 8 ;
+  IDX_ERR_HID_TX_TOO_LARGE           = 9 ;
+  IDX_ERR_PACKET_ID_INVALID          = 10;
+  IDX_ERR_PACKET_LEN_INVALID         = 11;
+  IDX_ERR_INTERNAL_TEST_FAILED       = 12;
+  IDX_ERR_RX_PACKET_LOST             = 13;
+  IDX_ERR_HID_SETUP_DI               = 14;
+  IDX_ERR_HID_CREATE_FILE            = 15;
+  IDX_ERR_HID_READ_HANDLE            = 16;
+  IDX_ERR_HID_WRITE_HANDLE           = 17;
+  IDX_ERR_HID_SET_INPUT_BUFF         = 18;
+  IDX_ERR_HID_GET_PREPAESED          = 19;
+  IDX_ERR_HID_GET_CAPS               = 20;
+  IDX_ERR_HID_WRITE_FILE             = 21;
+  IDX_ERR_HID_GET_OVERLAPPED         = 22;
+  IDX_ERR_HID_SET_FEATURE            = 23;
+  IDX_ERR_HID_GET_FEATURE            = 24;
+  IDX_ERR_HID_DEVICE_IO_CTRL         = 25;
+  IDX_ERR_HID_SEND_FEATURE_RPT       = 26;
+  IDX_ERR_HID_GET_MANU_STR           = 27;
+  IDX_ERR_HID_GET_PROD_STR           = 28;
+  IDX_ERR_HID_GET_SERIAL_STR         = 29;
+  IDX_ERR_HID_GET_INDEXED_STR        = 30;
+  IDX_ERR_TX_TIMEDOUT                = 31;
+  IDX_ERR_HW_DFU_WRITE_FLASH_FAILED  = 32; // hw write flash failed
+  IDX_ERR_HW_DFU_WRITE_WO_ERASE      = 33; // hw write data without erase
+  IDX_ERR_HW_DFU_CRC_CHECK_ERROR     = 34; // hw crc check error
+  IDX_ERR_HW_DFU_COMMAND_TIMED_OUT   = 35; // hw dfu command timed out
+  IDX_ERR_HW_PACKET_ID_INVALID       = 36; // hw packet id invalid
+  IDX_ERR_HW_PACKET_LEN_INVALID      = 37; // hw packet len invalid
+  IDX_ERR_HW_INTERNAL_TEST_FAILED    = 38; // hw internal test failed
+  IDX_ERR_HW_RX_FROM_PC_PACKET_LOST  = 39; // hw rx from pc packet lost
+  IDX_ERR_HW_TX_TO_PC_BUFF_OVERRUN   = 40; // hw tx to pc buffer overrun
+  IDX_ERR_HW_API_PAEAMETER_INVALID   = 41; // hw api parameter invalid
+  IDX_ERR_DFU_FILE_LOAD_FAILED       = 42;
+  IDX_ERR_DFU_HEADER_WRITE_FAILED    = 43;
+  IDX_ERR_READ_STATUS_TIMEDOUT       = 44;
+  IDX_ERR_CALLBACK_ALREADY_EXISTS    = 45;
+  IDX_ERR_CALLBACK_NOT_EXISTS        = 46;
+  IDX_ERR_FILE_INVALID               = 47; // database file corrupted or not recognized
+  IDX_ERR_DB_ID_NOT_FOUND            = 48; // database unique id not found
+  IDX_ERR_SW_API_PAEAMETER_INVALID   = 49; // software api parameter invalid
+  IDX_ERR_SW_API_GENERIC_TIMEOUT     = 50; // software api generic timed out
+  IDX_ERR_SW_API_SET_CONF_FAILED     = 51; // software api set hw conf failed
+  IDX_ERR_SW_API_INDEX_OUT_OF_BOUNDS = 52; // index out of bounds
+  IDX_ERR_SW_API_WAIT_TIMEOUT        = 53; // rx wait timed out
+  IDX_ERR_SW_API_GET_IO_FAILED       = 54; // get io failed
+  IDX_ERR_SW_API_SET_IO_FAILED       = 55; // set io failed
+  IDX_ERR_SW_API_REPLAY_ON_GOING     = 56; // a replay is already on goning
+  IDX_ERR_SW_API_INSTANCE_NOT_EXISTS = 57; // instance not exists
+  IDX_ERR_HW_CAN_TRANSMIT_FAILED     = 58; // can transmit frame failed
+  IDX_ERR_HW_NO_RESPONSE             = 59; // no response from hardware
+  IDX_ERR_SW_CAN_MSG_NOT_FOUND       = 60; // can message not found
+  IDX_ERR_SW_CAN_RECV_BUFFER_EMPTY   = 61; // user can recv message buffer empty
+  IDX_ERR_SW_CAN_RECV_PARTIAL_READ   = 62; // total read count <> desired read count
+  IDX_ERR_SW_API_LINCONFIG_FAILED    = 63;
+  IDX_ERR_SW_API_FRAMENUM_OUTOFRANGE = 64;
+  IDX_ERR_SW_API_LDFCONFIG_FAILED    = 65;
+  IDX_ERR_SW_API_LDFCONFIG_CMDERR    = 66;
+  IDX_ERR_SW_ENV_NOT_READY           = 67; // key not retrieved
+  IDX_ERR_SECURITY_FAILED            = 68;
+  IDX_ERR_XL_ERROR                   = 69; // XL driver failed
+  IDX_ERR_SEC_INDEX_OUTOFRANGE           = 70;
+  IDX_SEC_ERR_STRINGLENGTH_OUTFOF_RANGE  = 71;
+  IDX_SEC_ERR_KEY_IS_NOT_INITIALIZATION  = 72;
+  IDX_SEC_ERR_KEY_IS_WRONG               = 73;
+  IDX_SEC_ERR_NOT_PERMIT_WRITE           = 74;
+  IDX_SEC_ERR_16BYTES_MULTIPLE           = 75;
+  IDX_ERR_LIN_CHN_OUTOF_RANGE            = 76;
+  IDX_ERR_DLL_NOT_READY                  = 77;
+  IDX_ERR_FEATURE_NOT_SUPPORTED          = 78;
+  IDX_ERR_COMMON_SERV_ERROR              = 79;
+  IDX_ERR_READ_PARA_OVERFLOW             = 80;
+  IDX_ERR_INVALID_CHANNEL_MAPPING        = 81;
+  IDX_ERR_TSLIB_GENERIC_OPERATION_FAILED = 82;
+  IDX_ERR_TSLIB_ITEM_ALREADY_EXISTS      = 83;
+  IDX_ERR_TSLIB_ITEM_NOT_FOUND           = 84;
+  IDX_ERR_TSLIB_LOGICAL_CHANNEL_INVALID  = 85;
+  IDX_ERR_FILE_NOT_EXISTS                = 86;
+  IDX_ERR_NO_INIT_ACCESS                 = 87;
+  IDX_ERR_CHN_NOT_ACTIVE                 = 88;
+  IDX_ERR_CHN_NOT_CREATED                = 89;
+  IDX_ERR_APPNAME_LENGTH_OUT_OF_RANGE    = 90;
+  IDX_ERR_PROJECT_IS_MODIFIED            = 91;
+  IDX_ERR_SIGNAL_NOT_FOUND_IN_DB         = 92;
+  IDX_ERR_MESSAGE_NOT_FOUND_IN_DB        = 93;
+  IDX_ERR_TSMASTER_IS_NOT_INSTALLED      = 94;
+  IDX_ERR_LIB_LOAD_FAILED                = 95;
+  IDX_ERR_LIB_FUNCTION_NOT_FOUND         = 96;
+  IDX_ERR_LIB_NOT_INITIALIZED            = 97;
+  IDX_ERR_PCAN_GENRIC_ERROR              = 98;
+  IDX_ERR_KVASER_GENERIC_ERROR           = 99;
+  IDX_ERR_ZLG_GENERIC_ERROR              = 100;
+  IDX_ERR_ICS_GENERIC_ERROR              = 101;
+  IDX_ERR_TC1005_GENERIC_ERROR           = 102;
+  IDX_ERR_SYSTEM_VAR_NOT_FOUND           = 103;
+  IDX_ERR_INCORRECT_SYSTEM_VAR_TYPE      = 104;
+  IDX_ERR_CYCLIC_MSG_NOT_EXIST           = 105;
+  IDX_ERR_BAUD_NOT_AVAIL                 = 106;
+  IDX_ERR_DEV_NOT_SUPPORT_SYNC_SEND      = 107;
+  IDX_ERR_MP_WAIT_TIME_NOT_SATISFIED     = 108;
+  IDX_ERR_CANNOT_OPERATE_WHILE_CONNECTED = 109;
+  IDX_ERR_CREATE_FILE_FAILED             = 110;
+  IDX_ERR_PYTHON_EXECUTE_FAILED          = 111;
+  IDX_ERR_SIGNAL_MULTIPLEXED_NOT_ACTIVE  = 112;
+  IDX_ERR_GET_HANDLE_BY_CHANNEL_FAILED   = 113;
+  IDX_ERR_CANNOT_OPERATE_WHILE_APP_CONN  = 114;
+  IDX_ERR_FILE_LOAD_FAILED               = 115;
+  IDX_ERR_READ_LINDATA_FAILED            = 116;
+  IDX_ERR_FIFO_NOT_ENABLED               = 117;
+  IDX_ERR_INVALID_HANDLE                 = 118;
+  IDX_ERR_READ_FILE_ERROR                = 119;
+  IDX_ERR_READ_TO_EOF                    = 120;
+  ERR_CODE_COUNT                         = 121;
+
 // Note: Should also update C API!!!
 
 // library initialization and finalization
@@ -505,8 +636,10 @@ function tsapp_show_channel_mapping_window: integer; stdcall; {$IFNDEF LIBTSMAST
 function tsapp_show_hardware_configuration_window: integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 function tsapp_show_tsmaster_window(const AWindowName: PAnsiChar; const AWaitClose: Boolean): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 function tsapp_get_timestamp(ATimeUs: PInt64): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
-function tsapp_execute_python_string(const AString: PAnsiChar; const ASync: boolean; const AIsX64: Boolean; AResultLog: PPAnsiChar): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
-function tsapp_execute_python_script(const AFilePath: PAnsiChar; const ASync: boolean; const AIsX64: Boolean; AResultLog: PPAnsiChar): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tsapp_execute_python_string(const AString: PAnsiChar; const AArguments: pansichar; const ASync: boolean; const AIsX64: Boolean; AResultLog: PPAnsiChar): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tsapp_execute_python_script(const AFilePath: PAnsiChar; const AArguments: pansichar; const ASync: boolean; const AIsX64: Boolean; AResultLog: PPAnsiChar): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tsapp_set_analysis_time_range(const ATimeStartUs: int64; const ATimeEndUs: int64): Integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tsapp_get_tsmaster_version(const AYear: pinteger; const AMonth: pinteger; const ADay: pinteger; const ABuildNumber: pinteger): Integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 // hardware settings
 function tsapp_enumerate_hw_devices(out ACount: Integer): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 function tsapp_get_hw_info_by_index(const AIndex: Integer; const AHWInfo: PLIBHWInfo): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
@@ -663,6 +796,19 @@ function tslog_pause_online_replays(): Integer; stdcall; {$IFNDEF LIBTSMASTER_IM
 function tslog_stop_online_replay(const AIndex: Integer): Integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 function tslog_stop_online_replays(): Integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 function tslog_get_online_replay_status(const AIndex: Integer; out AStatus: TLIBOnlineReplayStatus; out AProgressPercent100:Single): Integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+// blf
+function tslog_blf_write_start(const AFileName: PAnsiChar; AHandle: pinteger): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_blf_write_can(const AHandle: integer; const ACAN: PlibCAN): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_blf_write_can_fd(const AHandle: integer; const ACANFD: PlibCANFD): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_blf_write_lin(const AHandle: integer; const ALIN: PlibLIN): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_blf_write_end(const AHandle: integer): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_blf_read_start(const AFileName: PAnsiChar; AHandle: pinteger; AObjCount: pinteger): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_blf_read_status(const AHandle: integer; AObjReadCount: pinteger): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_blf_read_object(const AHandle: integer; AProgressedCnt: pinteger; AType: PSupportedObjType; ACAN: PlibCAN; ALIN: PlibLIN; ACANFD: PlibCANFD): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_blf_read_end(const AHandle: integer): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_blf_seek_object_time(const AHandle: integer; const AProg100: Double; var ATime: int64; var AProgressedCnt: integer): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_blf_to_asc(const ABLFFileName: PAnsiChar; const AASCFileName: pansichar; const AProgressCallback: TProgressCallback): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+function tslog_asc_to_blf(const AASCFileName: PAnsiChar; const ABLFFileName: pansichar; const AProgressCallback: TProgressCallback): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 // CAN RBS
 function tscom_can_rbs_reload_settings(): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 function tscom_can_rbs_start(): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
@@ -677,6 +823,7 @@ function tscom_can_rbs_get_signal_value_by_element(const AIdxChn: Integer; const
 function tscom_can_rbs_get_signal_value_by_address(const ASymbolAddress: PAnsiChar; out AValue: Double): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 function tscom_can_rbs_set_signal_value_by_element(const AIdxChn: Integer; const ANetworkName: PAnsiChar; const ANodeName: pansichar; const AMsgName: PAnsiChar; const ASignalName: PAnsiChar; const AValue: Double): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 function tscom_can_rbs_set_signal_value_by_address(const ASymbolAddress: PAnsiChar; const AValue: Double): integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
+
 // LIN apis
 //function tslin_apply_download_new_ldf(const AChnIdx: Integer): Integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
 //function tslin_download_frames(const AChnIdx: Integer; const ACnt: Integer; const ALINFrames: PConfig_LINFrameStruct): Integer; stdcall; {$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
@@ -713,11 +860,11 @@ function tslin_diag_sp_session_control(const AChnIdx: Integer;
                                           const ANAD:Byte;
                                           const ANewSession:Byte;
                                           const ATimeoutMS:UInt32):NativeInt;stdcall;{$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
-//Service ID��0x19
+//Service ID 0x19
 function tslin_diag_sp_fault_memory_read(const AChnIdx: Integer;
                                             const ANAD:Byte;
                                             const ATimeoutMS:UInt32):NativeInt;stdcall;{$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
-//ServiceID��0x14
+//ServiceID 0x14
 function tslin_diag_sp_fault_memory_clear(const AChnIdx: Integer;
                                              const ANAD:Byte;
                                              const ATimeoutMS:UInt32):NativeInt;stdcall;{$IFNDEF LIBTSMASTER_IMPL} external DLL_LIB_TSMASTER; {$ENDIF}
@@ -739,10 +886,6 @@ function tsmp_get_mp_list(const AList: ppansichar): integer; stdcall; {$IFNDEF L
 
 {$ENDIF}
 
-{$IFDEF TSMASTER_IMPL}
-function CheckTSApiOK(const AErrCode: Integer; const ACurrFuncName: string): Boolean;
-{$ENDIF}
-
 implementation
 
 uses
@@ -750,11 +893,6 @@ uses
   System.Types,
   System.Math,
   System.AnsiStrings,
-{$IFDEF TSMASTER_IMPL}
-  uTSConsts,
-  uTSBaseUtils,
-  uLibTSMasterApplication,
-{$ENDIF}
   System.SysUtils,
   System.StrUtils;
 
@@ -1340,27 +1478,6 @@ begin
   end;
 
 end;
-
-{$IFDEF TSMASTER_IMPL}
-function CheckTSApiOK(const AErrCode: Integer; const ACurrFuncName: string): Boolean;
-var
-  p: PAnsiChar;
-  s: string;
-begin
-  if 0 = aerrcode then begin
-    result := true;
-  end else begin
-    result := false;
-    if (0 = tsapp_get_error_description(AErrCode, @p)) and (0 <> AErrCode) then begin
-      s := string(AnsiString(p));
-    end else begin
-      s := '';
-    end;
-    vlog(GetTopStackInfo + ACurrFuncName + ' failed with error code = ' + AErrCode.tostring + ', ' + s, lvl_error);
-  end;
-
-end;
-{$ENDIF}
 
 { TLIBTSMapping }
 

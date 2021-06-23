@@ -790,6 +790,15 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 43
       end
+      object Button80: TButton
+        Left = 256
+        Top = 170
+        Width = 209
+        Height = 25
+        Caption = 'Get Software Information'
+        TabOrder = 44
+        OnClick = Button80Click
+      end
     end
     object shtCAN: TTabSheet
       Caption = 'CAN Communication'
@@ -2374,6 +2383,175 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
         Text = 'mExcel'
       end
     end
+    object shtLoggingLibrary: TTabSheet
+      Caption = 'Logging'
+      ImageIndex = 7
+      DesignSize = (
+        1219
+        521)
+      object Label53: TLabel
+        Left = 67
+        Top = 19
+        Width = 117
+        Height = 13
+        Caption = 'Specify blf log file name:'
+      end
+      object Label54: TLabel
+        Left = 91
+        Top = 51
+        Width = 93
+        Height = 13
+        Caption = 'Current file handle:'
+      end
+      object Button71: TButton
+        Left = 8
+        Top = 84
+        Width = 161
+        Height = 25
+        Caption = 'Start Logging'
+        TabOrder = 0
+        OnClick = Button71Click
+      end
+      object Button72: TButton
+        Left = 8
+        Top = 115
+        Width = 161
+        Height = 25
+        Caption = 'Adding 10 CAN Frames'
+        TabOrder = 1
+        OnClick = Button72Click
+      end
+      object Button73: TButton
+        Left = 8
+        Top = 241
+        Width = 161
+        Height = 25
+        Caption = 'Stop Logging'
+        TabOrder = 2
+        OnClick = Button73Click
+      end
+      object Button74: TButton
+        Left = 200
+        Top = 84
+        Width = 161
+        Height = 25
+        Caption = 'Start Reading'
+        TabOrder = 3
+        OnClick = Button74Click
+      end
+      object Button75: TButton
+        Left = 200
+        Top = 115
+        Width = 161
+        Height = 25
+        Caption = 'Reading CAN Frames'
+        TabOrder = 4
+        OnClick = Button75Click
+      end
+      object Button76: TButton
+        Left = 200
+        Top = 146
+        Width = 161
+        Height = 25
+        Caption = 'Stop Reading'
+        TabOrder = 5
+        OnClick = Button76Click
+      end
+      object Button77: TButton
+        Left = 392
+        Top = 84
+        Width = 161
+        Height = 25
+        Caption = 'BLF -> ASC'
+        TabOrder = 6
+        OnClick = Button77Click
+      end
+      object Button78: TButton
+        Left = 392
+        Top = 115
+        Width = 161
+        Height = 25
+        Caption = 'ASC -> BLF'
+        TabOrder = 7
+        OnClick = Button78Click
+      end
+      object Button79: TButton
+        Left = 8
+        Top = 178
+        Width = 161
+        Height = 25
+        Caption = 'Adding 10 LIN Frames'
+        TabOrder = 8
+        OnClick = Button79Click
+      end
+      object Button81: TButton
+        Left = 8
+        Top = 209
+        Width = 161
+        Height = 25
+        Caption = 'Adding many CAN LIN Frames'
+        TabOrder = 9
+        OnClick = Button81Click
+      end
+      object Button83: TButton
+        Left = 8
+        Top = 146
+        Width = 161
+        Height = 25
+        Caption = 'Adding 10 CAN FD Frames'
+        TabOrder = 10
+        OnClick = Button83Click
+      end
+      object edtBlfFile: TEdit
+        Left = 200
+        Top = 16
+        Width = 993
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 11
+        Text = '.\log1.blf'
+      end
+      object edtBLFHandle: TEdit
+        Left = 200
+        Top = 48
+        Width = 353
+        Height = 21
+        Alignment = taCenter
+        Enabled = False
+        ReadOnly = True
+        TabOrder = 12
+        Text = '0'
+      end
+      object edtBlfToASC: TEdit
+        Left = 561
+        Top = 86
+        Width = 353
+        Height = 21
+        Enabled = False
+        ReadOnly = True
+        TabOrder = 13
+        Text = '.\log1.blf'
+      end
+      object edtASCToBlf: TEdit
+        Left = 561
+        Top = 117
+        Width = 353
+        Height = 21
+        Enabled = False
+        ReadOnly = True
+        TabOrder = 14
+        Text = '.\log1.asc'
+      end
+      object prgConvert: TProgressBar
+        AlignWithMargins = True
+        Left = 3
+        Top = 501
+        Width = 1213
+        Height = 17
+        Align = alBottom
+        TabOrder = 15
+      end
+    end
     object shtMisc: TTabSheet
       Caption = 'Miscellaneous'
       ImageIndex = 5
@@ -2395,10 +2573,12 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
         Margins.Left = 240
         Align = alTop
         Lines.Strings = (
+          'import sys'
           'import win32api, win32con'
           
-            'win32api.MessageBox(0, '#39'This is a dialog from python'#39', '#39'python d' +
-            'ialog'#39', win32con.MB_OK)'
+            'win32api.MessageBox(0, '#39'This is a dialog from python, arguments ' +
+            '= '#39' + sys.argv[1] + '#39', '#39' + sys.argv[2], '#39'python dialog'#39', win32co' +
+            'n.MB_OK)'
           'print('#39'OK'#39')')
         ScrollBars = ssVertical
         TabOrder = 1
@@ -2688,10 +2868,6 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
         end
       end
     end
-    object shtLDF: TTabSheet
-      Caption = 'LDF'
-      ImageIndex = 7
-    end
   end
   object MM: TMemo
     Left = 0
@@ -2702,11 +2878,5 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 1
-  end
-  object dlgOpenFirmware: TOpenDialog
-    DefaultExt = '.TSDFU'
-    Title = 'Load DFU file...'
-    Left = 820
-    Top = 384
   end
 end
