@@ -186,7 +186,7 @@ type
     Button54: TButton;
     edtUnloadMPLib: TEdit;
     shtLINCom: TTabSheet;
-    shtLDF: TTabSheet;
+    shtLoggingLibrary: TTabSheet;
     grpLINTpLayer: TGroupBox;
     lblNAD: TLabel;
     lblTPExecuteTime: TLabel;
@@ -214,7 +214,6 @@ type
     btnStartSednMsgThread: TButton;
     btnStopSendMsgThread: TButton;
     mmLINMsgs: TMemo;
-    dlgOpenFirmware: TOpenDialog;
     btnSetLINDiagSlaveResponseIntervalTime: TButton;
     Button55: TButton;
     Button56: TButton;
@@ -250,6 +249,25 @@ type
     MMExcel: TMemo;
     Button69: TButton;
     Button70: TButton;
+    Button71: TButton;
+    Button72: TButton;
+    Button73: TButton;
+    Button74: TButton;
+    Button75: TButton;
+    Button76: TButton;
+    Button77: TButton;
+    Button78: TButton;
+    Button79: TButton;
+    Button81: TButton;
+    Button83: TButton;
+    edtBlfFile: TEdit;
+    Label53: TLabel;
+    Label54: TLabel;
+    edtBLFHandle: TEdit;
+    edtBlfToASC: TEdit;
+    edtASCToBlf: TEdit;
+    prgConvert: TProgressBar;
+    Button80: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -342,6 +360,18 @@ type
     procedure Button69Click(Sender: TObject);
     procedure Button70Click(Sender: TObject);
     procedure shtOnlineReplayShow(Sender: TObject);
+    procedure Button71Click(Sender: TObject);
+    procedure Button72Click(Sender: TObject);
+    procedure Button83Click(Sender: TObject);
+    procedure Button79Click(Sender: TObject);
+    procedure Button81Click(Sender: TObject);
+    procedure Button73Click(Sender: TObject);
+    procedure Button74Click(Sender: TObject);
+    procedure Button75Click(Sender: TObject);
+    procedure Button76Click(Sender: TObject);
+    procedure Button77Click(Sender: TObject);
+    procedure Button78Click(Sender: TObject);
+    procedure Button80Click(Sender: TObject);
   private
     FApplicationName: ansistring;
     function GetMyApplication: PAnsiChar;
@@ -372,31 +402,8 @@ implementation
 uses
   System.Math,
   Winapi.ShellAPI,
-  System.AnsiStrings;
-
-const
-  // Firmware update status
-  FIRM_UPDATE_STAT_COUNT          = 9;
-  FIRM_UPDATE_NOT_RUN             = 0;
-  FIRM_UPDATE_LOADING_FIRM        = 1;
-  FIRM_UPDATE_WRITING_BOOT_CONFIG = 2;
-  FIRM_UPDATE_VERIFY_BOOT_CONFIG  = 3;
-  FIRM_UPDATE_WRITE_FLASH         = 4;
-  FIRM_UPDATE_CHECK_CRC           = 5;
-  FIRM_UPDATE_RESET               = 6;
-  FIRM_UPDATE_FAILED              = 7; // final state 1
-  FIRM_UPDATE_COMPLETE            = 8; // final state 2
-  FIRM_UPDATE_DESCs: array [0..FIRM_UPDATE_STAT_COUNT-1] of string = (
-    'Not run',
-    'Loading firmware file',
-    'Writing bootloader config',
-    'Verify bootloader config',
-    'Writing flash',
-    'Checking CRC',
-    'Reseting Device',
-    'Failed, please check log',
-    'Complete'
-  );
+  System.AnsiStrings,
+  System.Diagnostics;
 
 {$R *.dfm}
 
@@ -1357,7 +1364,7 @@ procedure TfrmTestLibTSMaster.Button51Click(Sender: TObject);
 var
   p: pansichar;
 begin
-  if CheckOK(tsapp_execute_python_string(PAnsiChar(AnsiString(MMPython.text)), true, false, @p)) then begin
+  if CheckOK(tsapp_execute_python_string(PAnsiChar(AnsiString(MMPython.text)), 'arguments1 arguments2', true, false, @p)) then begin
     Log(string(ansistring(p)));
   end;
 
@@ -1369,7 +1376,7 @@ begin
     handle,
     'open',
     PChar(ExtractFilePath(Application.ExeName)),
-    nil,
+    'arguments1 arguments2',
     nil,
     SW_SHOW
   );
@@ -1682,11 +1689,278 @@ begin
 
 end;
 
+procedure TfrmTestLibTSMaster.Button71Click(Sender: TObject);
+var
+  h: integer;
+begin
+  if CheckOK(tslog_blf_write_start(pansichar(ansistring(edtblffile.text)), @h)) then begin
+    log('blf write created: ' + edtblffile.text);
+    edtBLFHandle.text := h.tostring;
+  end else begin
+    Log('failed to create blf file');
+  end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button72Click(Sender: TObject);
+const
+  ADD_CNT = 10;
+var
+  c: tlibcan;
+  i, h: integer;
+begin
+  h := strtointdef(edtblfhandle.text, 0);
+  c.SetStdId($55, 8);
+  c.SetTX(False);
+  c.FTimeUS := 123;
+  for i:=0 to ADD_CNT-1 do begin
+    if CheckOK(tslog_blf_write_can(h, @c)) then begin
+      pint64(@c.FData[0])^ := pint64(@c.FData[0])^ + 1;
+      c.FTimeUS := c.FTimeUS + 200;
+    end else begin
+      Log('failed to add can message');
+      exit;
+    end;
+  end;
+  Log('blf can added ' + ADD_CNT.ToString + ' times');
+
+end;
+
+procedure TfrmTestLibTSMaster.Button73Click(Sender: TObject);
+var
+  h: integer;
+begin
+  h := strtointdef(edtblfhandle.text, 0);
+  if checkok(tslog_blf_write_end(h)) then begin
+    Log('blf write end');
+  end else begin
+    Log('end blf failed');
+  end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button74Click(Sender: TObject);
+var
+  cnt, h: integer;
+begin
+  if checkok(tslog_blf_read_start(pansichar(ansistring(edtblffile.text)), @h, @cnt)) then begin
+    log('blf read created, object count = ' + cnt.ToString);
+    edtblfhandle.text := h.tostring;
+  end else begin
+    Log('failed to create blf file');
+  end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button75Click(Sender: TObject);
+var
+  c: tlibcan;
+  cFD: TlibCANFD;
+  l: tliblin;
+  h, i: integer;
+  t: TSupportedObjType;
+  counter: integer;
+begin
+  h := strtointdef(edtblfhandle.text, 0);
+  counter := 0;
+  while true do begin
+    i := tslog_blf_read_object(h, @counter, @t, @c, @l, @cfd);
+    if i = IDX_ERR_READ_TO_EOF then begin
+      break;
+    end else if i <> 0 then begin
+      checkok(i);
+      break;
+    end;
+  end;
+  Log('blf read count = ' + counter.ToString);
+
+end;
+
+procedure TfrmTestLibTSMaster.Button76Click(Sender: TObject);
+var
+  h: integer;
+begin
+  h := strtointdef(edtblfhandle.text, 0);
+  if checkok(tslog_blf_read_end(h)) then begin
+    Log('blf read end');
+  end;
+
+end;
+
+var
+  vPrg: integer;
+
+procedure OnConvertProgress(const AProgress100: Double); stdcall;
+begin
+  if aprogress100 > vprg then begin
+    vprg := vprg + 10;
+    frmTestLibTSMaster.prgConvert.position := round(aprogress100);
+  end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button77Click(Sender: TObject);
+begin
+  vprg := 0;
+  if checkok(tslog_blf_to_asc(
+    pansichar(ansistring(edtBlfToASC.text)),
+    pansichar(ansistring(edtASCToBlf.text)),
+    OnConvertProgress)) then begin
+    log('convert done');
+    prgconvert.position := 100;
+  end else begin
+    Log('convert failed');
+  end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button78Click(Sender: TObject);
+begin
+  vprg := 0;
+  if checkok(tslog_asc_to_blf(
+    pansichar(ansistring(edtASCToBlf.text)),
+    pansichar(ansistring(edtBlfToASC.text)),
+    OnConvertProgress)) then begin
+    log('convert done');
+    prgconvert.position := 100;
+  end else begin
+    Log('convert failed');
+  end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button79Click(Sender: TObject);
+const
+  ADD_CNT = 10;
+var
+  c: TlibLIN;
+  i, h: integer;
+begin
+  h := strtointdef(edtblfhandle.text, 0);
+  c.SetId($12, 8);
+  c.FTimeUS := 23456;
+  for i:=0 to ADD_CNT-1 do begin
+    c.FIdxChn := i div 5;
+    c.FChecksum := i;
+    c.SetTX(i > 5);
+    if checkok(tslog_blf_write_lin(h, @c)) then begin
+      pint64(@c.FData[0])^ := pint64(@c.FData[0])^ + 1;
+      c.FTimeUS := c.FTimeUS + 200;
+    end else begin
+      Log('failed to add lin message');
+      exit;
+    end;
+  end;
+  Log('blf lin added ' + ADD_CNT.ToString + ' times');
+
+end;
+
 procedure TfrmTestLibTSMaster.Button7Click(Sender: TObject);
 begin
   if CheckOK(tsapp_disconnect) then begin
     Log('Application disconnected');
   end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button80Click(Sender: TObject);
+var
+  y, m, d, b: integer;
+begin
+  if CheckOK(tsapp_get_tsmaster_version(@y, @m, @d, @b)) then begin
+    Log('TSMaster software version is: ' + y.tostring + '.' + m.ToString + '.' + d.ToString + '.' + b.ToString);
+  end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button81Click(Sender: TObject);
+const
+  ADD_CNT = 100000;
+var
+  w: TStopwatch;
+  cCAN: tlibcan;
+  cCANFD: tlibcanfd;
+  cLIN: tliblin;
+  i, h: integer;
+  usTimestamp: int64;
+begin
+{
+  performance:
+  09:52:21: elapsed ms: 1580
+  09:52:21: blf can lin added 100000 times + 100000 times
+}
+  h := strtointdef(edtblfhandle.text, 0);
+  w := w.StartNew;
+  // CAN
+  cCAN.SetStdId($55, 8);
+  cCAN.SetTX(False);
+  usTimestamp := 123;
+  cCAN.FTimeUS := usTimestamp;
+  for i:=0 to ADD_CNT-1 do begin
+    if checkok(tslog_blf_write_can(h, @cCAN)) then begin
+      pint64(@cCAN.FData[0])^ := pint64(@cCAN.FData[0])^ + 1;
+      cCAN.FTimeUS := cCAN.FTimeUS + 200;
+      usTimestamp := cCAN.FTimeUS;
+    end else begin
+      Log('failed to add can message');
+      exit;
+    end;
+  end;
+  // CAN FD
+  cCANFD.SetStdId($AA, 8);
+  cCANFD.SetTX(False);
+  cCANFD.FTimeUS := usTimestamp;
+  for i:=0 to ADD_CNT-1 do begin
+    if checkok(tslog_blf_write_can_fd(h, @cCANFD)) then begin
+      pint64(@cCANFD.FData[0])^ := pint64(@cCANFD.FData[0])^ + 1;
+      cCANFD.FTimeUS := cCANFD.FTimeUS + 200;
+      usTimestamp := cCANFD.FTimeUS;
+    end else begin
+      Log('failed to add can fd message');
+      exit;
+    end;
+  end;
+  // LIN
+  cLIN.SetId($12, 8);
+  cLIN.FTimeUS := usTimestamp;
+  cLIN.FIdxChn := 1;
+  cLIN.SetTX(True);
+  cLIN.FChecksum := 0; // todo: auto set checksum
+  for i:=0 to ADD_CNT-1 do begin
+    if checkok(tslog_blf_write_lin(h, @cLIN)) then begin
+      pint64(@cLIN.FData[0])^ := pint64(@cLIN.FData[0])^ + 1;
+      cLIN.FTimeUS := cLIN.FTimeUS + 200;
+    end else begin
+      Log('failed to add lin message');
+      exit;
+    end;
+  end;
+  Log('elapsed ms: ' + w.ElapsedMilliseconds.ToString);
+  Log('blf can lin added ' + ADD_CNT.ToString + ' times');
+
+end;
+
+procedure TfrmTestLibTSMaster.Button83Click(Sender: TObject);
+const
+  ADD_CNT = 10;
+var
+  c: TlibCANFD;
+  i, h: integer;
+begin
+  h := strtointdef(edtblfhandle.text, 0);
+  c.SetStdId($AA, 15);
+  c.SetTX(False);
+  c.FTimeUS := 12345;
+  for i:=0 to ADD_CNT-1 do begin
+    if checkok(tslog_blf_write_can_fd(h, @c)) then begin
+      pint64(@c.FData[56])^ := pint64(@c.FData[56])^ + 1;
+      c.FTimeUS := c.FTimeUS + 200;
+    end else begin
+      Log('failed to add can fd message');
+      exit;
+    end;
+  end;
+  Log('blf can fd added ' + ADD_CNT.ToString + ' times');
 
 end;
 
