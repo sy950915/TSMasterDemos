@@ -803,6 +803,10 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     object shtCAN: TTabSheet
       Caption = 'CAN Communication'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label14: TLabel
         Left = 304
         Top = 142
@@ -1302,6 +1306,10 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     object shtCANDatabase: TTabSheet
       Caption = 'CAN Database'
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         1219
         521)
@@ -1986,6 +1994,10 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
       Caption = 'Online Replay'
       ImageIndex = 3
       OnShow = shtOnlineReplayShow
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox3: TGroupBox
         AlignWithMargins = True
         Left = 3
@@ -2124,6 +2136,10 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     object shtMiniProgramLibrary: TTabSheet
       Caption = 'Mini Program Library'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         1219
         521)
@@ -2386,6 +2402,10 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     object shtLoggingLibrary: TTabSheet
       Caption = 'Logging'
       ImageIndex = 7
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       DesignSize = (
         1219
         521)
@@ -2423,7 +2443,7 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
       end
       object Button73: TButton
         Left = 8
-        Top = 241
+        Top = 271
         Width = 161
         Height = 25
         Caption = 'Stop Logging'
@@ -2551,10 +2571,22 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
         Align = alBottom
         TabOrder = 15
       end
+      object Button82: TButton
+        Left = 8
+        Top = 240
+        Width = 161
+        Height = 25
+        Caption = 'Adding realtime comment'
+        TabOrder = 16
+        OnClick = Button82Click
+      end
     end
     object shtMisc: TTabSheet
       Caption = 'Miscellaneous'
       ImageIndex = 5
+      DesignSize = (
+        1219
+        521)
       object Button51: TButton
         Left = 16
         Top = 11
@@ -2618,10 +2650,110 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
         TabOrder = 4
         OnClick = Button70Click
       end
+      object Button84: TButton
+        Left = 16
+        Top = 224
+        Width = 209
+        Height = 25
+        Caption = 'Get System Var "StatisticsCAN1.StdData"'
+        TabOrder = 5
+        OnClick = Button84Click
+      end
+      object GroupBox4: TGroupBox
+        Left = 16
+        Top = 272
+        Width = 1200
+        Height = 113
+        Anchors = [akLeft, akTop, akRight]
+        Caption = 'Vendor Detect Options'
+        TabOrder = 6
+        object Button85: TButton
+          Left = 16
+          Top = 32
+          Width = 193
+          Height = 25
+          Caption = 'Get Vendor Detect Options'
+          TabOrder = 0
+          OnClick = Button85Click
+        end
+        object Button86: TButton
+          Left = 16
+          Top = 63
+          Width = 193
+          Height = 25
+          Caption = 'Set Vendor Detect Options'
+          TabOrder = 1
+          OnClick = Button86Click
+        end
+        object chkTOSUN: TCheckBox
+          Left = 224
+          Top = 48
+          Width = 75
+          Height = 17
+          Caption = 'TOSUN'
+          Checked = True
+          State = cbChecked
+          TabOrder = 2
+        end
+        object chkVector: TCheckBox
+          Left = 305
+          Top = 48
+          Width = 76
+          Height = 17
+          Caption = 'Vector'
+          Checked = True
+          State = cbChecked
+          TabOrder = 3
+        end
+        object chkPeak: TCheckBox
+          Left = 387
+          Top = 48
+          Width = 75
+          Height = 17
+          Caption = 'PEAK'
+          TabOrder = 4
+        end
+        object chkKvaser: TCheckBox
+          Left = 468
+          Top = 48
+          Width = 75
+          Height = 17
+          Caption = 'Kvaser'
+          TabOrder = 5
+        end
+        object chkZLG: TCheckBox
+          Left = 549
+          Top = 48
+          Width = 76
+          Height = 17
+          Caption = 'ZLG'
+          TabOrder = 6
+        end
+        object chkIntrepidcs: TCheckBox
+          Left = 631
+          Top = 48
+          Width = 75
+          Height = 17
+          Caption = 'Intrepidcs'
+          TabOrder = 7
+        end
+        object chkCANable: TCheckBox
+          Left = 712
+          Top = 48
+          Width = 97
+          Height = 17
+          Caption = 'CANable'
+          TabOrder = 8
+        end
+      end
     end
     object shtLINCom: TTabSheet
       Caption = 'LIN Communication'
       ImageIndex = 6
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object grpLINTpLayer: TGroupBox
         Left = 0
         Top = 105

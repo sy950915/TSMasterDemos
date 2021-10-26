@@ -1,5 +1,10 @@
 ﻿unit fTestLibTSMaster;
 
+{.$DEFINE INIT_WITH_PROJECT}
+{$IFDEF DEBUG}
+  {.$DEFINE DEBUG_fTestLibTSMaster}
+{$ENDIF}
+
 interface
 
 uses
@@ -268,6 +273,18 @@ type
     edtASCToBlf: TEdit;
     prgConvert: TProgressBar;
     Button80: TButton;
+    Button82: TButton;
+    Button84: TButton;
+    GroupBox4: TGroupBox;
+    Button85: TButton;
+    Button86: TButton;
+    chkTOSUN: TCheckBox;
+    chkVector: TCheckBox;
+    chkPeak: TCheckBox;
+    chkKvaser: TCheckBox;
+    chkZLG: TCheckBox;
+    chkIntrepidcs: TCheckBox;
+    chkCANable: TCheckBox;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -372,6 +389,10 @@ type
     procedure Button77Click(Sender: TObject);
     procedure Button78Click(Sender: TObject);
     procedure Button80Click(Sender: TObject);
+    procedure Button82Click(Sender: TObject);
+    procedure Button84Click(Sender: TObject);
+    procedure Button85Click(Sender: TObject);
+    procedure Button86Click(Sender: TObject);
   private
     FApplicationName: ansistring;
     function GetMyApplication: PAnsiChar;
@@ -483,7 +504,7 @@ begin
     ShowMessage('Please Input Unsigned Integer Identifier');
     exit;
   end;
-  if tslin_diag_sp_read_data_by_identifier(
+  if tsdiag_lin_read_data_by_identifier(
                        0,
                        reqNadValue,
                        reqID,
@@ -649,7 +670,7 @@ var
 begin
   if TryStrToInt(edtTpIntervalTime.Text,intervalTime) then
   begin
-    if tslin_diag_tp_slave_response_intervalms(0,intervalTime) = 0 then
+    if tstp_lin_slave_response_intervalms(0,intervalTime) = 0 then
     begin
       Log('Set diagnostic tp slave response internal time success!');
     end
@@ -697,7 +718,7 @@ begin
     ShowMessage('Please Input Valid NAD Value');
     exit;
   end;
-  if tslin_diag_tp_master_request(0,nadValue,@testBytes[0],realDataCnt,500) = 0 then
+  if tstp_lin_master_request(0,nadValue,@testBytes[0],realDataCnt,500) = 0 then
   begin
     Log('Send LIN Master Request Package Success');
   end
@@ -710,7 +731,7 @@ end;
 
 procedure TfrmTestLibTSMaster.btnTPResetRequestClick(Sender: TObject);
 begin
-  if tslin_diag_tp_reset(0) = 0 then
+  if tstp_lin_reset(0) = 0 then
   begin
     Log('Reset Diag Tp Module Success!');
   end
@@ -727,7 +748,7 @@ var
 begin
   if TryStrToInt(edtTpIntervalTime.Text,intervalTime) then
   begin
-    if tslin_diag_tp_master_request_intervalms(0,intervalTime) = 0 then
+    if tstp_lin_master_request_intervalms(0,intervalTime) = 0 then
     begin
       Log('Set diagnostic tp master request internal time success!');
     end
@@ -1596,7 +1617,7 @@ begin
   writeData[6] := $65; writeData[7] := $45; writeData[8] := $45;
   writeData[9] := $50; writeData[10] := $52; writeData[11] := $4F;
   writeData[12] := $4D;
-  if tslin_diag_sp_write_data_by_identifier(
+  if tsdiag_lin_write_data_by_identifier(
                        0,
                        $7F,
                        $FD10,
@@ -1753,23 +1774,33 @@ begin
 end;
 
 procedure TfrmTestLibTSMaster.Button75Click(Sender: TObject);
+const
+  MAX_STR_LEN_COMMENT = 1024;
 var
   c: tlibcan;
   cFD: TlibCANFD;
   l: tliblin;
   h, i: integer;
   t: TSupportedObjType;
+  cmt: Trealtime_comment_t;
   counter: integer;
+  s: array [0..MAX_STR_LEN_COMMENT-1] of AnsiChar;
 begin
   h := strtointdef(edtblfhandle.text, 0);
   counter := 0;
+  cmt.FCapacity := MAX_STR_LEN_COMMENT-1;
+  cmt.FComment := @s[0];
   while true do begin
-    i := tslog_blf_read_object(h, @counter, @t, @c, @l, @cfd);
+    i := tslog_blf_read_object_w_comment(h, @counter, @t, @c, @l, @cfd, @cmt);
     if i = IDX_ERR_READ_TO_EOF then begin
       break;
     end else if i <> 0 then begin
       checkok(i);
       break;
+    end else begin
+      if t = sotRealtimeComment then begin
+        Log('realtime comment read out: ' + string(AnsiString(cmt.FComment)));
+      end;
     end;
   end;
   Log('blf read count = ' + counter.ToString);
@@ -1940,6 +1971,19 @@ begin
 
 end;
 
+procedure TfrmTestLibTSMaster.Button82Click(Sender: TObject);
+var
+  h: integer;
+begin
+  h := strtointdef(edtblfhandle.text, 0);
+  if checkok(tslog_blf_write_realtime_comment(h, 12345 + Random(10000), 'this is a comment added by api')) then begin
+    log('realtime comment added');
+  end else begin
+    log('realtime comment add failed');
+  end;
+
+end;
+
 procedure TfrmTestLibTSMaster.Button83Click(Sender: TObject);
 const
   ADD_CNT = 10;
@@ -1961,6 +2005,51 @@ begin
     end;
   end;
   Log('blf can fd added ' + ADD_CNT.ToString + ' times');
+
+end;
+
+procedure TfrmTestLibTSMaster.Button84Click(Sender: TObject);
+const
+  CAPACITY = 64;
+var
+  s: array[0..CAPACITY - 1] of AnsiChar;
+begin
+  if CheckOK(tsapp_get_system_var_generic('StatisticsCAN1.StdData', CAPACITY, @s[0])) then begin
+    Log('StatisticsCAN1.StdData = ' + string(AnsiString(pansichar(@s[0]))));
+  end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button85Click(Sender: TObject);
+var
+  pTOSUN, pVector, pPEAK, pKvaser, pZLG, pIntrepidcs, pCANable: Boolean;
+begin
+  if CheckOK(tsapp_get_vendor_detect_preferences(pTOSUN, pVector, pPEAK, pKvaser, pZLG, pIntrepidcs, pCANable)) then begin
+    Log('Vendor detect options retrieved');
+    chkTOSUN.Checked := ptosun;
+    chkVector.Checked := pVector;
+    chkPeak.Checked := pPEAK;
+    chkKvaser.Checked := pKvaser;
+    chkZLG.Checked := pZLG;
+    chkIntrepidcs.Checked := pIntrepidcs;
+    chkCANable.Checked := pCANable;
+  end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button86Click(Sender: TObject);
+begin
+  if CheckOK(tsapp_set_vendor_detect_preferences(
+    chkTOSUN.Checked,
+    chkVector.Checked,
+    chkPeak.Checked,
+    chkKvaser.Checked,
+    chkZLG.Checked,
+    chkIntrepidcs.Checked,
+    chkCANable.Checked
+  )) then begin
+    Log('Vendor detect options has been set');
+  end;
 
 end;
 
@@ -2036,7 +2125,7 @@ end;
 procedure TfrmTestLibTSMaster.chkVendorClick(Sender: TObject);
 begin
   if CheckOK(tsapp_set_vendor_detect_preferences(
-    true, true, true, True, true, True
+    true, true, true, True, true, True, True
   )) then begin
     Log('All vendor detection enabled.');
   end;
@@ -2056,7 +2145,17 @@ end;
 
 procedure TfrmTestLibTSMaster.FormCreate(Sender: TObject);
 begin
+{$IFDEF INIT_WITH_PROJECT}
+  initialize_lib_tsmaster_with_project(GetMyApplication, 'C:\LC_Ramdisk\XCPSim.T7z');
+{$ELSE}
   initialize_lib_tsmaster(GetMyApplication);
+{$ENDIF}
+
+{$IFDEF DEBUG_fTestLibTSMaster}
+  finalize_lib_tsmaster;
+  initialize_lib_tsmaster(GetMyApplication);
+{$ENDIF}
+  // buggy: this fifo will eat 200MB+ memory !!!!!!!!!!!!!!!!!!!!!!!!!!
   tsfifo_enable_receive_fifo;
   tsapp_set_logger(LibTSMasterLogger);
   cbDeviceType1Change(cbDeviceType1);
