@@ -285,6 +285,7 @@ type
     chkZLG: TCheckBox;
     chkIntrepidcs: TCheckBox;
     chkCANable: TCheckBox;
+    Button87: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -393,6 +394,7 @@ type
     procedure Button84Click(Sender: TObject);
     procedure Button85Click(Sender: TObject);
     procedure Button86Click(Sender: TObject);
+    procedure Button87Click(Sender: TObject);
   private
     FApplicationName: ansistring;
     function GetMyApplication: PAnsiChar;
@@ -651,7 +653,7 @@ var
 begin
    if TryStrToFloat(edtLINBaudrate.Text,kBaudrate) then
    begin
-     if tsapp_configure_baudrate_lin(0,kBaudrate)  = 0 then
+     if tsapp_configure_baudrate_lin(0,kBaudrate,Integer(LIN_PROTOCL_J2602))  = 0 then
      begin
        Log('Set LIN Baudrate Success!');
      end
@@ -2049,6 +2051,16 @@ begin
     chkCANable.Checked
   )) then begin
     Log('Vendor detect options has been set');
+  end;
+
+end;
+
+procedure TfrmTestLibTSMaster.Button87Click(Sender: TObject);
+var
+  p: PAnsiChar;
+begin
+  if CheckOK(tsapp_get_hardware_id_string(@p)) then begin
+    Log('Computer fingerprint is: ' + string(AnsiString(p)));
   end;
 
 end;

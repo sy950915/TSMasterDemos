@@ -803,10 +803,6 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     object shtCAN: TTabSheet
       Caption = 'CAN Communication'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label14: TLabel
         Left = 304
         Top = 142
@@ -1306,10 +1302,6 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     object shtCANDatabase: TTabSheet
       Caption = 'CAN Database'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         1219
         521)
@@ -1994,10 +1986,6 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
       Caption = 'Online Replay'
       ImageIndex = 3
       OnShow = shtOnlineReplayShow
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox3: TGroupBox
         AlignWithMargins = True
         Left = 3
@@ -2136,10 +2124,6 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     object shtMiniProgramLibrary: TTabSheet
       Caption = 'Mini Program Library'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         1219
         521)
@@ -2402,10 +2386,6 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
     object shtLoggingLibrary: TTabSheet
       Caption = 'Logging'
       ImageIndex = 7
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       DesignSize = (
         1219
         521)
@@ -2746,14 +2726,19 @@ object frmTestLibTSMaster: TfrmTestLibTSMaster
           TabOrder = 8
         end
       end
+      object Button87: TButton
+        Left = 16
+        Top = 193
+        Width = 209
+        Height = 25
+        Caption = 'Get Unique Computer Fingerprint'
+        TabOrder = 7
+        OnClick = Button87Click
+      end
     end
     object shtLINCom: TTabSheet
       Caption = 'LIN Communication'
       ImageIndex = 6
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object grpLINTpLayer: TGroupBox
         Left = 0
         Top = 105
