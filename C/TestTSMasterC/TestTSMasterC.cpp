@@ -49,6 +49,7 @@ int main()
 {
     std::cout << "TSMaster C Demo\n";
     std::cout << "This Demo demostrates how to start rbs and modify a signal value in rbs in real-time\n";
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     // [1] initialize library and set your application name
     if (!CheckOK(initialize_lib_tsmaster("TSMasterCDemo"))) return vErrorCode;
@@ -137,6 +138,7 @@ int main()
         // [10] activate everything in rbs
         if (!CheckOK(tscom_can_rbs_activate_all_networks(true, true))) break;
         std::cout << "Each signal in CAN RBS is now activated\n";
+        if (!CheckOK(tsapp_enable_bus_statistics(true))) break;
 
         // [11] connect application
         if (!CheckOK(tsapp_connect())) break;
@@ -161,7 +163,12 @@ int main()
         if (!CheckOK(tscom_can_rbs_get_signal_value_by_address("0/PowerTrain/Engine/EngineData/EngSpeed", &d))) break;
         std::cout << "signal Engine/EngineData/EngSpeed read value is: " << d << "\n";
 
-        Sleep(1000);
+        Sleep(3000);
+        if (!CheckOK(tsapp_get_bus_statistics(APP_CAN, 0, cbsAllStdData, &d))) break;
+        std::cout << "All std frame count is: " << d << "\n";
+        if (!CheckOK(tsapp_get_bus_statistics(APP_CAN, 0, cbsPeakLoad, &d))) break;
+        std::cout << "Bus peak load is: " << d << "\n";
+
         // [16] stop rbs
         if (!CheckOK(tscom_can_rbs_stop())) break;
         std::cout << "CAN RBS stopped\n";
