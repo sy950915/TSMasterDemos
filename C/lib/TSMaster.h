@@ -625,8 +625,8 @@ TSAPI(s32) tsapp_set_vendor_detect_preferences(const bool AScanTOSUN,
 // tsapp_show_channel_mapping_window
 // tsapp_show_hardware_configuration_window
 TSAPI(s32) tsapp_show_tsmaster_window(const char* AWindowName, const bool AWaitClose);
-TSAPI(s32) tsapp_start_logging(const void* AObj);
-TSAPI(s32) tsapp_stop_logging(const void* AObj);
+TSAPI(s32) tsapp_start_logging(const char* AFullFileName);
+TSAPI(s32) tsapp_stop_logging(void);
 TSAPI(s32) tsapp_transmit_can_async(const PCAN ACAN);
 TSAPI(s32) tsapp_transmit_canfd_async(const PCANFD ACANFD);
 TSAPI(s32) tsapp_transmit_lin_async(const PLIN ALIN);

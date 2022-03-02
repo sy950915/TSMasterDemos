@@ -8,7 +8,7 @@
 #define USE_TOSUN_VIRTUAL
 #undef  USE_XL_VIRTUAL
 #undef  USE_TC1005
-#define DBC_ABSOLUTE_ADDRESS "C:\\Users\\Public\\Documents\\Vector\\CANoe\\Sample Configurations 12.0.101\\CAN\\CANSystemDemo\\CANdb\\PowerTrain.dbc"
+#define DBC_ABSOLUTE_ADDRESS "D:\\Projects\\TOSUN\\Projects\\TSMaster\\bin\\Data\\Demo\\Databases\\PowerTrain.dbc"
 #define DBC_RELATIVE_ADDRESS ".\\PowerTrain.dbc" // relative to TSMaster.exe file path
 #define DBC_ADDRESS DBC_ABSOLUTE_ADDRESS
 
@@ -61,7 +61,7 @@ int main()
         // [2] set CAN channel count
         if (!CheckOK(tsapp_set_can_channel_count(2))) break;
         std::cout << "TSMasterCDemo has 2 CAN channels\n";
-
+        
         // [3] set each mapping: logical CH1 map to TC1005 CH1
         TLIBTSMapping m;
         m.init();
@@ -140,6 +140,9 @@ int main()
         std::cout << "Each signal in CAN RBS is now activated\n";
         if (!CheckOK(tsapp_enable_bus_statistics(true))) break;
 
+        // [10.1] you can also start blf logging
+        tsapp_start_logging("log1.blf");
+
         // [11] connect application
         if (!CheckOK(tsapp_connect())) break;
         std::cout << "TSMasterCDemo application connected, communication starts here...\n";
@@ -180,9 +183,12 @@ int main()
         // [18] disconnect application
         if (!CheckOK(tsapp_disconnect())) break;
         std::cout << "TSMasterCDemo application disconnected\n";
+
+        // [19] logging also stopped finally
+        tsapp_stop_logging();
     } while (0);
 
-    // [17] finalize library
+    // [20] finalize library
     finalize_lib_tsmaster();   
     std::cout << "TSMaster dll finalized\n";
 
